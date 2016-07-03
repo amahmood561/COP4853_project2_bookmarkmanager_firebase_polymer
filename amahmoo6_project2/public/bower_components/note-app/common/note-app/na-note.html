@@ -1,0 +1,145 @@
+<link rel="import" href="/bower_components/paper-styles/shadow.html">
+<link rel="import" href="/bower_components/paper-styles/typography.html">
+
+<dom-module id="na-note">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        background-color: #fafafa;
+        color: #212121;
+        padding: 1em;
+        @apply(--paper-font-common-base);
+        @apply(--shadow-elevation-2dp);
+        border-radius: 2px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      h1 {
+        font-size: 1.15em;
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      h1:not(.hidden)+p {
+        margin-top: 1em;
+      }
+
+      p {
+        margin: 0;
+        font-family: Times New Roman;
+        font-size: 1.5em;
+        white-space: pre-wrap;
+      }
+
+      .placeholder:after {
+        content: 'Name the Bookmark :';
+        opacity: 0.5;
+      }
+          
+      .placeholder#body:after {
+        content: 'URL http://example.com';
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .empty {
+        font-style: italic;
+        color: #737373;
+        line-height: 0;
+        pointer-events: none;
+      }
+    </style>
+    <h1
+        id="title"
+        class$="[[emptyClass(title, editable)]]"
+        contenteditable$="[[editable]]"></h1>
+    <p
+        id="body"
+        class$="[[emptyClass(body, editable)]]"
+        contenteditable$="[[editable]]"></p>
+    <a id="url" href="[[body]]">[[body]]</a>
+    
+    <!-- <p class="empty" hidden$="[[!propertiesAreEmpty(title, body, editable)]]">Tap to edit this note...</p> -->
+  </template>
+  <script>
+    Polymer({
+      is: 'na-note',
+
+      properties: {
+        editable: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        },
+
+        title: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+
+        body: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+        
+        url: {
+          type: String,
+          notify: true,
+          value: ''
+        },        
+
+        lastUpdated: {
+          type: Number,
+          value: 0
+        }
+      },
+
+      listeners: {
+        input: 'onInput'
+      },
+
+      observers: [
+        'updateTextContent(title, body)'
+      ],
+
+      emptyClass(content, editable) {
+        if (editable) {
+          return !content ? 'placeholder' : '';
+        } else {
+          return !content ? 'hidden' : '';
+        }
+      },
+
+      propertiesAreEmpty() {
+        for (var i = 0; i < arguments.length; ++i) {
+          if (arguments[i]) {
+            return false;
+          }
+        }
+        return true;
+      },
+
+      updateTextContent(title, body) {
+        console.log(arguments);
+        this.$.title.textContent = title;
+        this.$.body.textContent = body;
+      },
+
+      onInput() {
+        this.async(function() {
+          this.title = this.$.title.innerText;
+          this.body = this.$.body.innerText;
+        });
+      }
+    })
+  </script>
+</dom-module>
